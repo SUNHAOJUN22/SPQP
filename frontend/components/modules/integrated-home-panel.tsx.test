@@ -1,0 +1,292 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Boxes,
+  CheckCircle2,
+  Cpu,
+  Database,
+  FileCode2,
+  FolderTree,
+  GitMerge,
+  LayoutDashboard,
+  Network,
+  ShieldCheck
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Button } from "@/components/ui/button";
+
+import { useStudio } from "@/lib/store";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api";
+
+type SourceMap = {
+  status: string;
+  strategy: string;
+  backend_integrated: string[];
+  frontend_integrated: string[];
+  docs_integrated: string[];
+  dismantled_source_locations?: Record<string, string>;
+  active_rule: string;
+};
+
+type TaskGroups = {
+  groups: Record<string, { id: string; title: string }[]>;
+  total_tasks: number;
+  provenance: string;
+};
+
+const assetStats = [
+  { name: "前端来源", files: 41295, sizeMb: 1142.6, tone: "cyan" },
+  { name: "后端来源", files: 48, sizeMb: 0.38, tone: "violet" },
+  { name: "脚本工具", files: 43, sizeMb: 0.09, tone: "orange" },
+  { name: "文档资产", files: 10, sizeMb: 0.02, tone: "green" },
+  { name: "部署文件", files: 10, sizeMb: 0.01, tone: "blue" },
+  { name: "图像/PDF", files: 8, sizeMb: 1.56, tone: "yellow" }
+];
+
+const appModules = [
+  { title: "论文驱动知识�?, detail: "博士论文实体抽取、单体族、催化剂模型、实验体系�?, icon: Database },
+  { title: "Gaussian 36 任务模板", detail: "单体、TEA、Ti 配位、插�?TS、后反应、utility 文本生成�?, icon: FileCode2 },
+  { title: "量子机理驾驶�?, detail: "ΔGpoison、ΔG‡、krel、四轴判据与可证伪机制模型�?, icon: LayoutDashboard },
+  { title: "分子智能识别", detail: "Si、OMe 氧、Si–Cl、C=C、Al、Ti 活性位点自动识别�?, icon: Network },
+  { title: "高级科学扩展", detail: "Wigner、Boltzmann、GPR/EI、VMC、后反应动力学�?, icon: Cpu },
+  { title: "中文科研报告", detail: "区分论文抽取、真实上传、用户输入和示例数据�?, icon: ShieldCheck }
+];
+
+function ChartTooltip() {
+  return (
+    <Tooltip
+      contentStyle={{
+        background: "hsl(var(--studio-panel))",
+        border: "1px solid hsl(var(--studio-line))",
+        borderRadius: 18,
+        color: "hsl(var(--studio-text))"
+      }}
+      labelStyle={{ color: "hsl(var(--studio-text))" }}
+    />
+  );
+}
+
+export function IntegratedHomePanel() {
+  const { backendStatus } = useStudio();
+  const [sourceMap, setSourceMap] = useState<SourceMap | null>(null);
+  const [taskGroups, setTaskGroups] = useState<TaskGroups | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [clock, setClock] = useState(() => new Date().toLocaleTimeString("zh-CN"));
+
+  useEffect(() => {
+    void refresh();
+    const timer = setInterval(() => setClock(new Date().toLocaleTimeString("zh-CN")), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const taskGroupRows = useMemo(() => {
+    if (!taskGroups) return [];
+    return Object.entries(taskGroups.groups).map(([group, items]) => ({
+      group,
+      count: items.length,
+      title: groupTitle(group)
+    }));
+  }, [taskGroups]);
+
+  async function refresh() {
+    setError(null);
+    try {
+      const [sourceResponse, taskResponse] = await Promise.all([
+        fetch(`${API_BASE}/integration/source-map`),
+        fetch(`${API_BASE}/integration/gaussian-task-groups`)
+      ]);
+      if (!sourceResponse.ok || !taskResponse.ok) throw new Error("整合状�?API 读取失败�?);
+      setSourceMap((await sourceResponse.json()) as SourceMap);
+      setTaskGroups((await taskResponse.json()) as TaskGroups);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "整合状态读取失败�?);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* 系统运行状�?*/}
+      <div className="grid gap-3 md:grid-cols-4">
+        {[
+          { label: "当前时间", value: clock, icon: "🕐" },
+          { label: "后端状�?, value: backendStatus === "connected" ? "已连�?�? : backendStatus === "checking" ? "检测中�? : "未连�?�?, icon: "🔗" },
+          { label: "功能模块", value: "23 �?, icon: "📦" },
+          { label: "数据来源", value: "示例数据", icon: "⚠️" },
+        ].map((card) => (
+          <div key={card.label} className="border border-studio-line/60 bg-studio-panel rounded-xl p-4">
+            <div className="flex items-center gap-2 text-xs text-studio-muted">
+              <span>{card.icon}</span>
+              <span>{card.label}</span>
+            </div>
+            <p className="mt-2 text-lg font-medium">{card.value}</p>
+          </div>
+        ))}
+      </div>
+      <Card className="relative overflow-hidden p-6">
+
+        <div className="relative grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <StatusBadge tone="green">整合版新应用</StatusBadge>
+            <h2 className="mt-5 max-w-5xl text-4xl font-semibold tracking-normal md:text-6xl">
+              硅氧键催化量子研究平�?V3
+            </h2>
+            <p className="mt-3 text-sm font-medium text-studio-muted">SiO Catalyst Quantum Studio Pro Integrated</p>
+            <p className="mt-5 max-w-4xl text-base leading-8 text-studio-muted">
+              �?`Si-O` 独立子项目已经拆散并归入当前根工作目录。现在前端、后端、脚本、文档和资产由同一个应用统筹：
+              中文科研界面、Gaussian 模板、论文知识库、实�?DFT 对照、分子智能识别和机理判据在同一工作流内运行�?            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button onClick={refresh} icon={<GitMerge className="h-4 w-4" />}>刷新整合状�?/Button>
+              <StatusBadge tone="blue">唯一运行目录：D:\codex2_cataSi-O</StatusBadge>
+              <StatusBadge tone="gray">独立 Si-O 文件夹已移除</StatusBadge>
+            </div>
+          </div>
+          <Card className="bg-studio-panel/70">
+            <CardHeader>
+              <div>
+                <CardTitle>拆解状�?/CardTitle>
+                <CardDescription>原子项目不再作为独立应用存在</CardDescription>
+              </div>
+              <CheckCircle2 className="h-5 w-5 text-studio-green" />
+            </CardHeader>
+            <p className="text-lg font-semibold text-studio-text">{sourceMap?.status ?? "正在读取整合源图�?}</p>
+            <p className="mt-4 text-sm leading-7 text-studio-muted">
+              {sourceMap?.strategy ?? "正在从根项目 API 获取拆解与整合策略�?}
+            </p>
+            {error ? <p className="mt-4 text-sm font-semibold text-studio-red">{error}</p> : null}
+          </Card>
+        </div>
+      </Card>
+
+      <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+        <Card>
+          <CardHeader>
+            <div>
+              <CardTitle>拆解资产分布</CardTitle>
+              <CardDescription>所有来源文件已进入根目�?`integrated/origin-*` 分类资产�?/CardDescription>
+            </div>
+            <FolderTree className="h-5 w-5 text-studio-cyan" />
+          </CardHeader>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={assetStats}>
+                <CartesianGrid stroke="hsl(var(--studio-line))" strokeDasharray="3 6" />
+                <XAxis dataKey="name" tick={{ fill: "hsl(var(--studio-muted))", fontSize: 12 }} />
+                <YAxis tick={{ fill: "hsl(var(--studio-muted))", fontSize: 12 }} />
+                <ChartTooltip />
+                <Bar dataKey="files" name="文件�? radius={[12, 12, 0, 0]}>
+                  {assetStats.map((row) => (
+                    <Cell key={row.name} fill={`hsl(var(--studio-${row.tone}))`} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div>
+              <CardTitle>Gaussian 任务宇宙</CardTitle>
+              <CardDescription>36 类模板已进入根项目后端服�?/CardDescription>
+            </div>
+            <StatusBadge tone="violet">{taskGroups?.total_tasks ?? 36} 个任�?/StatusBadge>
+          </CardHeader>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(taskGroupRows.length ? taskGroupRows : fallbackTaskGroups()).map((row) => (
+              <div key={row.group} className="rounded-xl border border-studio-line bg-studio-panel2/70 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-studio-text">{row.title}</p>
+                  <StatusBadge tone="blue">{row.count}</StatusBadge>
+                </div>
+                <p className="mt-2 text-xs font-medium text-studio-muted">Group {row.group}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-sm leading-7 text-studio-muted">
+            {taskGroups?.provenance ?? "这些模板只生�?Gaussian / utility 文本，不会执�?Gaussian、cubegen �?Multiwfn�?}
+          </p>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        {appModules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <motion.div key={module.title} >
+              <Card className="h-full min-h-[210px]">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-studio-cyan/15 text-studio-cyan">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-5 text-lg font-medium text-studio-text">{module.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-studio-muted">{module.detail}</p>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div>
+            <CardTitle>根目录活动规�?/CardTitle>
+            <CardDescription>后续开发只面向整合后的应用</CardDescription>
+          </div>
+          <Boxes className="h-5 w-5 text-studio-orange" />
+        </CardHeader>
+        <p className="text-sm leading-7 text-studio-muted">
+          {sourceMap?.active_rule ??
+            "后续开发、测试和启动都在根目�?D:\\codex2_cataSi-O 内完成；拆解来源仅作�?integrated/origin-* 分类资产保留�?}
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {Object.entries(sourceMap?.dismantled_source_locations ?? fallbackLocations()).map(([key, value]) => (
+            <div key={key} className="rounded-xl border border-studio-line bg-studio-panel2/70 p-3">
+              <p className="text-xs font-medium uppercase text-studio-muted">{key}</p>
+              <p className="mt-2 text-sm font-medium text-studio-text">{value}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function groupTitle(group: string) {
+  const map: Record<string, string> = {
+    A: "单体与键",
+    B: "催化�?助剂",
+    C: "插入反应",
+    D: "水解缩合",
+    E: "自由基后反应",
+    F: "可视化工�?
+  };
+  return map[group] ?? `任务�?${group}`;
+}
+
+function fallbackTaskGroups() {
+  return ["A", "B", "C", "D", "E", "F"].map((group) => ({ group, title: groupTitle(group), count: 6 }));
+}
+
+function fallbackLocations() {
+  return {
+    frontend: "integrated/origin-frontend",
+    backend: "integrated/origin-backend",
+    docs: "integrated/origin-docs",
+    scripts: "integrated/origin-scripts",
+    deployment: "integrated/origin-deployment",
+    assets: "integrated/origin-assets"
+  };
+}

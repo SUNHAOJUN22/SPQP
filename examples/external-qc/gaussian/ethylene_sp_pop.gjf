@@ -1,0 +1,15 @@
+%NProcShared=2
+%Mem=2GB
+%Chk=ethylene_sp_pop.chk
+#P B3LYP/6-31G(d) SP Pop=(NBO,Full) NoSymm
+
+Ethylene single point frontier orbital and NBO smoke test
+
+0 1
+C       -0.669500    0.000000    0.000000
+C        0.669500    0.000000    0.000000
+H       -1.232000    0.928900    0.000000
+H       -1.232000   -0.928900    0.000000
+H        1.232000    0.928900    0.000000
+H        1.232000   -0.928900    0.000000
+

@@ -1,0 +1,38 @@
+# SiO Catalyst Quantum Studio Pro: Industrial Engineering Makefile
+
+.PHONY: audit lint typecheck build test test-unit test-science quality-gate validate benchmark report
+
+audit:
+	cd frontend && npm run lint
+	cd frontend && npm run typecheck
+	cd frontend && npm run build
+
+lint:
+	cd frontend && npm run lint
+
+typecheck:
+	cd frontend && npm run typecheck
+
+build:
+	cd frontend && npm run build
+
+test:
+	cd frontend && npm run test
+
+test-unit:
+	cd frontend && npm run test:unit
+
+test-science:
+	python scripts/test_science.py
+
+quality-gate:
+	python scripts/quality-gate.py
+
+validate:
+	python scripts/quality-gate.py --strict
+
+benchmark:
+	cd frontend && npm run benchmark
+
+report:
+	python scripts/generate_report.py

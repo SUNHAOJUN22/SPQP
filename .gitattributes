@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.docx binary
+*.cube text eol=lf
+*.gjf text eol=lf
+*.com text eol=lf
+*.inp text eol=lf
+*.log text eol=lf

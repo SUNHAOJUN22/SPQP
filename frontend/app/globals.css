@@ -1,0 +1,543 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════
+   Google Material 3 — Token System
+   Variable names stay as --studio-* for backward
+   compat with 52+ component files; VALUES are M3.
+   ══════════════════════════════════════════════ */
+
+:root {
+  /* ── Fonts ── */
+  --font-sans: "Inter", "Roboto", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Roboto Mono", "Consolas", monospace;
+  --font-display: "Google Sans", "Inter", system-ui, sans-serif;
+
+  /* ── Surface Tone Ladder (M3 Light) ── */
+  --studio-ink:      0 0% 100%;         /* surface — #FFFFFF */
+  --studio-panel:    220 14% 96%;       /* surface-container-low — #F1F3F4 */
+  --studio-panel-2:  220 12% 93%;       /* surface-container — #E8EAED */
+  --studio-panel-3:  220 10% 89%;       /* surface-container-high — #DADCE0 */
+  --studio-line:     220 8% 78%;        /* outline-variant — #BDC1C6 */
+  --studio-text:     0 0% 13%;          /* on-surface — #202124 */
+  --studio-muted:    0 0% 38%;          /* on-surface-variant — #5F6368 */
+
+  /* ── Primary — Google Blue ── */
+  --studio-cyan:     214 82% 51%;       /* primary — #1A73E8 */
+  --studio-blue:     214 82% 51%;       /* alias */
+
+  /* ── Science Semantic Colors ── */
+  --studio-violet:   262 52% 55%;       /* orbital — #9334E6 */
+  --studio-orange:   36 100% 50%;       /* thermal/warning — #F9AB00 */
+  --studio-green:    152 56% 38%;       /* success/kinetics — #188038 */
+  --studio-yellow:   43 96% 56%;        /* warning alt — #FBBC04 */
+  --studio-red:      4 90% 58%;         /* error/energy — #D93025 */
+
+  /* ── Extended M3 Tokens ── */
+  --gm-primary-container: 214 100% 94%; /* #D2E3FC */
+  --gm-on-primary:   0 0% 100%;
+  --gm-surface-variant: 220 8% 85%;
+
+  color-scheme: light;
+}
+
+.dark {
+  /* ── Surface Tone Ladder (M3 Dark) ── */
+  --studio-ink:      220 12% 8%;        /* #1F1F1F */
+  --studio-panel:    220 10% 11%;       /* surface-container-low */
+  --studio-panel-2:  220 8% 15%;        /* surface-container */
+  --studio-panel-3:  220 6% 19%;        /* surface-container-high */
+  --studio-line:     220 4% 32%;        /* outline-variant */
+  --studio-text:     0 0% 90%;          /* on-surface — #E3E3E3 */
+  --studio-muted:    0 0% 62%;          /* on-surface-variant */
+
+  /* ── Primary — Google Blue (dark) ── */
+  --studio-cyan:     214 100% 72%;      /* #8AB4F8 */
+  --studio-blue:     214 100% 72%;
+
+  /* ── Science Semantic (dark, boosted) ── */
+  --studio-violet:   263 72% 70%;
+  --studio-orange:   30 92% 62%;
+  --studio-green:    145 64% 52%;
+  --studio-yellow:   48 96% 60%;
+  --studio-red:      3 82% 66%;
+
+  /* ── Extended M3 Tokens ── */
+  --gm-primary-container: 214 50% 22%;
+  --gm-on-primary:   220 12% 8%;
+  --gm-surface-variant: 220 5% 24%;
+
+  color-scheme: dark;
+}
+
+/* ══════════════════════════════
+   Base Resets
+   ══════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: hsl(var(--studio-ink));
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  overscroll-behavior: none;
+  color: hsl(var(--studio-text));
+  background: hsl(var(--studio-ink));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, hsl(var(--studio-cyan)) 28%, transparent);
+}
+
+/* ══════════════════════════════
+   Scrollbar — Google-thin
+   ══════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, hsl(var(--studio-muted)) 25%, transparent);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, hsl(var(--studio-muted)) 45%, transparent);
+}
+
+/* ══════════════════════════════
+   Google-style Glass Panel
+   (simplified: no blur, flat M3)
+   ══════════════════════════════ */
+
+.glass-panel {
+  border: 1px solid hsl(var(--studio-line) / 0.6);
+  background: hsl(var(--studio-panel));
+  border-radius: 12px;
+  transition: box-shadow 0.2s ease;
+}
+
+.glass-panel-hover {
+  position: relative;
+}
+
+.glass-panel-hover:hover {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ══════════════════════════════
+   Energy Field — REMOVED
+   (kept as invisible no-op for
+   backward compat with JSX refs)
+   ══════════════════════════════ */
+
+.energy-field {
+  display: none;
+}
+
+/* ══════════════════════════════
+   Sidebar Active (Google pill)
+   ══════════════════════════════ */
+
+.nav-active-indicator {
+  position: relative;
+}
+
+/* Google-style: no ::before bar, just
+   background pill handled by Tailwind */
+
+/* ══════════════════════════════
+   Focus Ring
+   ══════════════════════════════ */
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px hsl(var(--studio-ink)), 0 0 0 4px hsl(var(--studio-cyan));
+}
+
+/* ══════════════════════════════
+   Scrollbar Hiding
+   ══════════════════════════════ */
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ══════════════════════════════
+   GPU / Containment
+   ══════════════════════════════ */
+
+.smooth-layer {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.stable-panel {
+  contain: layout paint style;
+}
+
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
+}
+
+/* ══════════════════════════════
+   Gradient Text (hero only)
+   ══════════════════════════════ */
+
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--studio-cyan)), hsl(var(--studio-violet)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warm {
+  background: linear-gradient(135deg, hsl(var(--studio-orange)), hsl(var(--studio-red)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ══════════════════════════════
+   Google-style Table
+   ══════════════════════════════ */
+
+.studio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.studio-table thead th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 12px;
+  color: hsl(var(--studio-muted));
+  padding: 8px 16px;
+  border-bottom: 1px solid hsl(var(--studio-line) / 0.6);
+  position: sticky;
+  top: 0;
+  background: hsl(var(--studio-ink));
+}
+
+.studio-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.studio-table tbody tr:hover {
+  background: hsl(var(--studio-panel));
+}
+
+/* ══════════════════════════════
+   Nav Group Label
+   ══════════════════════════════ */
+
+.nav-group-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: hsl(var(--studio-muted));
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+/* ══════════════════════════════
+   Status Dot (kept)
+   ══════════════════════════════ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot-connected {
+  background: hsl(var(--studio-green));
+  box-shadow: 0 0 6px hsl(var(--studio-green));
+}
+
+.status-dot-disconnected {
+  background: hsl(var(--studio-red));
+  box-shadow: 0 0 4px hsl(var(--studio-red));
+}
+
+.status-dot-checking {
+  background: hsl(var(--studio-yellow));
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ══════════════════════════════
+   Data Freshness (simplified)
+   ══════════════════════════════ */
+
+.data-fresh { border-left: 3px solid hsl(var(--studio-green)); }
+.data-stale { border-left: 3px solid hsl(var(--studio-yellow)); }
+.data-mock  { border-left: 3px solid hsl(var(--studio-orange)); }
+
+/* ══════════════════════════════
+   File Drop Zone
+   ══════════════════════════════ */
+
+.drop-zone {
+  border: 2px dashed hsl(var(--studio-line));
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.drop-zone-active {
+  border-color: hsl(var(--studio-cyan));
+  background: color-mix(in srgb, hsl(var(--studio-cyan)) 6%, transparent);
+}
+
+/* ══════════════════════════════
+   Focus-Within Glow
+   ══════════════════════════════ */
+
+.focus-within-glow:focus-within {
+  box-shadow: 0 0 0 2px hsl(var(--studio-ink)), 0 0 0 4px hsl(var(--studio-cyan));
+}
+
+/* ══════════════════════════════
+   Google M3 Utility Classes
+   ══════════════════════════════ */
+
+/* Card */
+.gm-card {
+  background: hsl(var(--studio-ink));
+  border: 1px solid hsl(var(--studio-line) / 0.6);
+  border-radius: 12px;
+  padding: 20px;
+  transition: box-shadow 0.2s ease;
+}
+
+.gm-card:hover {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.gm-card-elevated {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Table */
+.gm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.gm-table th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 12px;
+  color: hsl(var(--studio-muted));
+  padding: 8px 16px;
+  border-bottom: 1px solid hsl(var(--studio-line) / 0.6);
+  position: sticky;
+  top: 0;
+  background: hsl(var(--studio-ink));
+}
+
+.gm-table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid hsl(var(--studio-line) / 0.3);
+  vertical-align: middle;
+}
+
+.gm-table tr:hover td {
+  background: hsl(var(--studio-panel));
+}
+
+/* Chip */
+.gm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid hsl(var(--studio-line));
+  background: transparent;
+  color: hsl(var(--studio-text));
+  transition: background 0.15s;
+}
+
+.gm-chip:hover {
+  background: hsl(var(--studio-panel));
+}
+
+.gm-chip-selected {
+  background: hsl(var(--gm-primary-container));
+  color: hsl(var(--studio-cyan));
+  border-color: transparent;
+}
+
+/* Tabs */
+.gm-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid hsl(var(--studio-line) / 0.6);
+}
+
+.gm-tab {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(var(--studio-muted));
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.gm-tab:hover {
+  background: hsl(var(--studio-panel));
+}
+
+.gm-tab-active {
+  color: hsl(var(--studio-cyan));
+  border-bottom-color: hsl(var(--studio-cyan));
+}
+
+/* Progress — Google linear indeterminate */
+.gm-progress {
+  height: 4px;
+  background: hsl(var(--studio-panel-2));
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gm-progress-bar {
+  height: 100%;
+  background: hsl(var(--studio-cyan));
+  border-radius: 2px;
+  animation: gm-indeterminate 2s ease-in-out infinite;
+}
+
+@keyframes gm-indeterminate {
+  0%   { transform: translateX(-100%); width: 40%; }
+  50%  { transform: translateX(60%);   width: 60%; }
+  100% { transform: translateX(200%);  width: 40%; }
+}
+
+/* Skeleton — grey pulse (no rainbow) */
+.gm-skeleton {
+  background: hsl(var(--studio-panel-2));
+  border-radius: 8px;
+  animation: gm-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes gm-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Molecule Grid (simplified) */
+.molecule-grid {
+  background: hsl(var(--studio-panel));
+  border: 1px solid hsl(var(--studio-line) / 0.4);
+  border-radius: 12px;
+}
+
+/* Hover Lift — REMOVED (Google-flat: no translateY) */
+.hover-lift {
+  transition: box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Shimmer — simplified grey pulse */
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.shimmer {
+  background: hsl(var(--studio-panel-2));
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ══════════════════════════════
+   Print Styles
+   ══════════════════════════════ */
+
+@media print {
+  aside,
+  header,
+  .energy-field,
+  .status-dot { display: none !important; }
+
+  main { padding: 0 !important; }
+
+  .glass-panel {
+    border: 1px solid #ccc !important;
+    background: white !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ══════════════════════════════
+   Reduced Motion
+   ══════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
