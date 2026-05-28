@@ -72,6 +72,16 @@ class Finding:
     archived: bool
 
 
+def markdown_safe_snippet(text: str) -> str:
+    """Keep generated Markdown textual even when archive files contain NUL bytes."""
+    safe = text.replace("\\", "\\\\").replace("`", "\\`")
+    safe = safe.replace("\x00", "\\0")
+    return "".join(
+        char if char in ("\t",) or ord(char) >= 32 else f"\\x{ord(char):02x}"
+        for char in safe
+    )
+
+
 def is_text_candidate(path: Path) -> bool:
     rel = path.relative_to(ROOT).as_posix()
     if rel in GENERATED_REL_PATHS:
@@ -108,6 +118,7 @@ def scan_file(path: Path) -> list[Finding]:
             snippet = line.strip()
             if len(snippet) > 180:
                 snippet = snippet[:177] + "..."
+            snippet = markdown_safe_snippet(snippet)
             findings.append(Finding(path=path, line_no=index, snippet=snippet, archived=archived))
     return findings
 
