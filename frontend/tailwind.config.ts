@@ -7,8 +7,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["var(--font-display)", "Google Sans", "Inter", "system-ui", "sans-serif"],
-        sans: ["var(--font-sans)", "Inter", "Roboto", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Google Sans", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "Google Sans Text", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "Roboto Mono", "Consolas", "monospace"],
       },
       colors: {

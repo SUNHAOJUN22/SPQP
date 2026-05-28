@@ -49,7 +49,7 @@ export function InsertionSurfacePanel() {
             <div key={row.molecule} className="mb-4">
               <div className="mb-2 flex justify-between text-sm text-studio-muted">
                 <span>{row.molecule}</span>
-                <b>{rateText(row.krel)}</b>
+                <span className="font-medium text-studio-text">{rateText(row.krel)}</span>
               </div>
               <Progress value={row.krel === null ? 0 : Math.min(100, Math.max(2, row.krel * 100))} />
             </div>

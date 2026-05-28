@@ -90,7 +90,8 @@ def is_text_candidate(path: Path) -> bool:
         return False
     if any(part in EXCLUDED_PARTS for part in path.parts):
         return False
-    return path.suffix.lower() in TEXT_SUFFIXES
+    suffixes = {suffix.lower() for suffix in path.suffixes}
+    return bool(suffixes & TEXT_SUFFIXES)
 
 
 def is_archived(path: Path) -> bool:

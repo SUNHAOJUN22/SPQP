@@ -74,13 +74,13 @@ function PathwayCards() {
         {modes.map(([mode, label, tone, detail]) => (
           <div key={mode} className="rounded-xl border border-studio-line bg-studio-panel/70 p-4">
             <div className="flex items-center justify-between gap-3">
-              <b>{mode}</b>
+              <span className="font-medium text-studio-text">{mode}</span>
               <StatusBadge tone={tone}>{label}</StatusBadge>
             </div>
             <p className="mt-3 text-sm leading-6 text-studio-muted">{detail}</p>
             <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-              <span className="rounded-xl bg-studio-panel2 p-3">r(Al–O)<br /><b>2.02 Å</b></span>
-              <span className="rounded-xl bg-studio-panel2 p-3">r(Al–Cl)<br /><b>2.31 Å</b></span>
+              <span className="rounded-xl bg-studio-panel2 p-3">r(Al–O)<br /><span className="font-medium text-studio-text">2.02 Å</span></span>
+              <span className="rounded-xl bg-studio-panel2 p-3">r(Al–Cl)<br /><span className="font-medium text-studio-text">2.31 Å</span></span>
             </div>
           </div>
         ))}

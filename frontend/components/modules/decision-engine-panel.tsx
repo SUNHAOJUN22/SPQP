@@ -145,11 +145,11 @@ export function DecisionEnginePanel() {
               </StatusBadge>
             </CardHeader>
             <div className="space-y-2 text-sm text-studio-muted">
-              <div className="flex justify-between gap-3"><span>Si–O 极化</span><b className="text-studio-text">{row.siOPolarity}</b></div>
-              <div className="flex justify-between gap-3"><span>TEA 捕获</span><b className="text-studio-text">{row.alCapture}</b></div>
-              <div className="flex justify-between gap-3"><span>Ti 毒化</span><b className="text-studio-text">{row.tiPoison}</b></div>
-              <div className="flex justify-between gap-3"><span>ΔG‡insert</span><b className="text-studio-text">{row.deltaGBarrier === null ? "缺失" : `${row.deltaGBarrier} kcal/mol`}</b></div>
-              <div className="flex justify-between gap-3"><span>krel</span><b className="text-studio-text">{row.krel === null ? "缺失" : row.krel}</b></div>
+              <div className="flex justify-between gap-3"><span>Si–O 极化</span><span className="font-medium text-studio-text">{row.siOPolarity}</span></div>
+              <div className="flex justify-between gap-3"><span>TEA 捕获</span><span className="font-medium text-studio-text">{row.alCapture}</span></div>
+              <div className="flex justify-between gap-3"><span>Ti 毒化</span><span className="font-medium text-studio-text">{row.tiPoison}</span></div>
+              <div className="flex justify-between gap-3"><span>ΔG‡insert</span><span className="font-medium text-studio-text">{row.deltaGBarrier === null ? "缺失" : `${row.deltaGBarrier} kcal/mol`}</span></div>
+              <div className="flex justify-between gap-3"><span>krel</span><span className="font-medium text-studio-text">{row.krel === null ? "缺失" : row.krel}</span></div>
             </div>
           </Card>
         ))}

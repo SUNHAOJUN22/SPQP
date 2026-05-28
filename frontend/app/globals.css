@@ -10,9 +10,11 @@
 
 :root {
   /* ── Fonts ── */
-  --font-sans: "Inter", "Roboto", system-ui, sans-serif;
+  --font-sans: "Google Sans Text", "Google Sans", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Segoe UI", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "Roboto Mono", "Consolas", monospace;
-  --font-display: "Google Sans", "Inter", system-ui, sans-serif;
+  --font-display: "Google Sans", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-emphasis: 500;
 
   /* ── Surface Tone Ladder (M3 Light) ── */
   --studio-ink:      0 0% 100%;         /* surface — #FFFFFF */
@@ -84,16 +86,46 @@ html {
   background: hsl(var(--studio-ink));
   scroll-behavior: smooth;
   text-rendering: optimizeLegibility;
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  letter-spacing: 0;
 }
 
 body {
   min-height: 100%;
   margin: 0;
   overscroll-behavior: none;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
   color: hsl(var(--studio-text));
   background: hsl(var(--studio-ink));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-emphasis);
+  letter-spacing: 0;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-emphasis);
+}
+
+.font-semibold,
+.font-bold,
+.font-extrabold,
+.font-black {
+  font-weight: var(--font-weight-emphasis) !important;
 }
 
 button,
@@ -101,6 +133,7 @@ input,
 textarea,
 select {
   font: inherit;
+  letter-spacing: 0;
 }
 
 ::selection {

@@ -54,7 +54,7 @@ export function TiPoisoningPanel() {
             {energyRows.map((row) => (
               <div key={row.molecule} className="rounded-xl border border-studio-line bg-studio-panel/70 p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <b>{row.molecule}</b>
+                  <span className="font-medium text-studio-text">{row.molecule}</span>
                   <StatusBadge tone={poisonTone(row.deltaGPoison)}>{formatEnergy(row.deltaGPoison)} kcal/mol</StatusBadge>
                 </div>
                 <Progress value={row.deltaGPoison === null ? 0 : Math.max(0, Math.min(100, 50 + row.deltaGPoison * 6))} />

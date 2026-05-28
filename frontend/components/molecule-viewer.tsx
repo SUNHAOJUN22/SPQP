@@ -87,7 +87,7 @@ export function MoleculeViewer({ molecule, highlight = "Si–O / Si–C 高亮" 
                 <motion.div
                   key={`${atom}-${index}`}
                   className={cn(
-                    "smooth-layer absolute grid h-11 w-11 place-items-center rounded-full border border-white/20 text-xs font-bold text-studio-text shadow-elevation-2",
+                    "smooth-layer absolute grid h-11 w-11 place-items-center rounded-full border border-white/20 text-xs font-medium text-studio-text shadow-elevation-2",
                     atomColors[atom] ?? "bg-studio-panel3",
                     atom === "Si" && "h-14 w-14 text-white",
                     atom === "O" && "text-white"

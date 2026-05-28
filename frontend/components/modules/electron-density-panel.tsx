@@ -196,7 +196,7 @@ function CubeControls({ cube, preview, slice, axis, onAxis }: { cube: CubeUpload
       </CardHeader>
       <div className="space-y-4">
         <div>
-          <div className="mb-2 flex justify-between text-sm text-studio-muted"><span>标量场完整度</span><b>{completeness.toFixed(1)}%</b></div>
+          <div className="mb-2 flex justify-between text-sm text-studio-muted"><span>标量场完整度</span><span className="font-medium text-studio-text">{completeness.toFixed(1)}%</span></div>
           <Progress value={completeness} />
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">

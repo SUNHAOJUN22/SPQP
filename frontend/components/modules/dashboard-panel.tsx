@@ -183,7 +183,7 @@ export function DashboardPanel({
             ["后反应", "水解缩合 / Si–O–Si"],
           ].map(([step, detail], index) => (
             <div key={step} className="rounded-xl border border-studio-line bg-studio-panel2/60 p-3">
-              <div className="mb-2 grid h-7 w-7 place-items-center rounded-full bg-studio-cyan/15 text-xs font-bold text-studio-cyan">
+              <div className="mb-2 grid h-7 w-7 place-items-center rounded-full bg-studio-cyan/15 text-xs font-medium text-studio-cyan">
                 {index + 1}
               </div>
               <p className="text-sm font-medium text-studio-text">{step}</p>

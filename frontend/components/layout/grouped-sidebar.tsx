@@ -48,7 +48,7 @@ export function GroupedSidebar({
                         className={cn(
                           "focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium transition",
                           active
-                            ? "bg-gm-primary-container text-studio-cyan font-semibold"
+                            ? "bg-gm-primary-container text-studio-cyan font-medium"
                             : "text-studio-muted hover:bg-studio-panel2 hover:text-studio-text"
                         )}
                         aria-current={active ? "page" : undefined}

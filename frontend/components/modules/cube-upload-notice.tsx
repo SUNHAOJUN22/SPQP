@@ -69,7 +69,7 @@ export function CubeUploadNotice({ onUploaded }: { onUploaded?: (cube: CubeUploa
       {uploaded ? (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-studio-line bg-studio-panel2/70 p-3">
           <FlaskConical className="h-4 w-4 text-studio-cyan" />
-          <strong className="text-studio-text">{uploaded.cube_type}</strong>
+          <span className="font-medium text-studio-text">{uploaded.cube_type}</span>
           <span>{uploaded.file_name}</span>
           <StatusBadge tone="green">真实上传</StatusBadge>
           <span>网格点 {uploaded.grid?.total_points ?? "待检查"}</span>
