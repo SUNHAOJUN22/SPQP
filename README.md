@@ -2,6 +2,8 @@
 
 SiO-SiC Polyolefin Quantum Mechanism Studio Ultra
 
+[简体中文](README.md) | [English](README.en.md)
+
 中文科研计算平台，用于聚烯烃功能化、Ziegler-Natta 催化、Si-O / Si-C 键物理化学属性、Gaussian 后处理、过氧化物自由基反应和 PP 长链支化-交联-降解竞争机制研究。
 
 ## Overview
