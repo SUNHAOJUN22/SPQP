@@ -2,45 +2,71 @@
 
 SiO-SiC Polyolefin Quantum Mechanism Studio Ultra
 
-这是一个中文科研计算平台，用于研究 Si-O / Si-C 键、Ziegler-Natta 催化、TEA 助催化剂、Ti 活性中心毒化、C=C 插入、Si-O-Si 后反应、过氧化物自由基、PP beta-scission、长链支化、交联和降解竞争机制。
+中文科研计算平台，用于聚烯烃功能化、Ziegler-Natta 催化、Si-O / Si-C 键物理化学属性、Gaussian 后处理、过氧化物自由基反应和 PP 长链支化-交联-降解竞争机制研究。
 
-本平台不是普通分子查看器，而是一个面向聚烯烃功能化和量子化学后处理的科研工作台。它把 Gaussian 输入生成、Gaussian log 只读解析、cube 只读预览、NBO / QTAIM / NCI 文本解析、能量公式、机制判据、证据等级和中文科研报告组织在同一个可审计流程中。
+## Overview
 
-本 README 已按 GitHub 阅读体验重新排版：只保留一级标题和二级标题，正文不使用加粗标记，减少行内代码和大段 API 列表。详细接口、测试矩阵和长报告放在 docs 目录中，避免 README 在中英文混排、代码块和多级标题之间出现明显字体粗细跳变。
+本项目是一个全栈科研软件原型，面向中文科研用户提供“数据导入、计算模板、只读解析、机制判据、证据分级、报告生成”的一体化工作流。
 
-## 项目状态
+平台关注以下研究线：
 
-- 当前版本：V4 Integrated / Pro Max Ultra
-- 界面语言：中文简体
-- 前端技术：Next.js、React、TypeScript、TailwindCSS、Framer Motion、Recharts
-- 后端技术：FastAPI、Pydantic、SQLAlchemy、SQLite、numpy、pandas、scipy
-- 数据边界：示例数据只用于演示，不能作为真实科研结论
-- 安全边界：默认不执行 Gaussian、cubegen、Multiwfn、GoodVibes 或用户上传文件
-- 发布仓库：[SUNHAOJUN22/SPQP](https://github.com/SUNHAOJUN22/SPQP)
+- 功能 alpha-烯烃单体：DCS、MCSOMe、DMOS 及相关 Si-Cl、Si-OMe、Si-O、Si-C 结构。
+- 配位插入机理：Ziegler-Natta 活性中心、TEA 助催化剂、Al-O / Al-Cl / Al-C=C 相互作用、Ti 毒化、C=C 插入过渡态。
+- 后反应机理：Si-Cl / Si-OMe 水解、Si-O-Si 缩合、Si-C 连接稳定性。
+- 自由基后改性：过氧化物 RO-OR 均裂、PP 叔碳抽氢、beta-scission、自由基复合、接枝、轻度交联、过凝胶和氧化羰基副反应。
+- 实验闭环：GPC、MFR、gel、SAOS、FTIR、NMR、DSC、介电谱等实验结果与 DFT 描述符对照。
 
-## 核心能力
+本项目默认不执行任何外部量子化学或波函数分析程序。Gaussian、cubegen、Multiwfn、GoodVibes 相关能力均以“输入生成、命令模板、文本解析、报告草稿”为边界。
 
-- 分子库：管理 DCS、MCSOMe、DMOS、ethylene、propylene、1-hexene、TEA、PP / EPC 小模型和过氧化物示例。
-- Gaussian 输入生成：生成单体、TEA 络合、Ti 配位、插入 TS、IRC、水解缩合、BDE 和自由基路径模板。
-- Gaussian 输出解析：只读解析能量、热校正、频率、虚频、HOMO / LUMO、电荷、NBO E(2)、Wiberg 键级和 Counterpoise 能量。
-- cube 预览：只读解析 density、ESP、HOMO、LUMO、spin density 和 difference density 的网格元数据、切片和下采样信息。
-- 机制计算：统一计算 Delta Gbind、Delta Gpoison、Delta Gpi、Delta Gddagger、krel、Si-C BDE、Si-O BDE、RO-OR BDE 和自由基竞争指标。
-- 机制判据：给出 Ti 毒化、TEA 预组织、Si-O 削弱、Si-C 稳定性、PP 降解、长链支化、过凝胶和氧化风险的中文解释。
-- 文献知识库：只读导入 docx、PDF 文本层或 OCR 文本，并把文献线索标注为 C 级证据。
-- 报告生成：输出中文科研报告，明确区分真实计算、真实实验、文献线索、用户输入和示例数据。
+## Product Scope
 
-## 科学边界
+平台当前覆盖以下产品能力。
 
-平台中的每个科学判断都必须带有数据来源和证据等级。
+- 中文科研工作台：Google Workspace / Google Cloud 风格的信息架构，包含分组导航、全局搜索、资源表格、右侧详情面板和报告预览。
+- 分子与结构管理：内置 DCS、MCSOMe、DMOS、ethylene、propylene、1-hexene、TEA、PP / EPC 小模型和过氧化物示例。
+- Gaussian 输入生成：生成 opt/freq/NBO、TEA complex、Ti pi-complex、O-to-Ti poison complex、insertion TS、IRC、hydrolysis、condensation、BDE 和自由基反应模板。
+- Gaussian 输出解析：只读解析 log/out 文本中的 SCF、Gibbs、ZPE、频率、虚频、HOMO / LUMO、偶极矩、电荷、Wiberg、NBO E(2)、Counterpoise 等字段。
+- cube 文件解析：只读解析 density、ESP、HOMO、LUMO、spin density 和 difference density 的网格元数据、切片和下采样预览。
+- 科学计算核心：统一实现能量换算、Delta G 公式、BDE、相对速率、自由基竞争和 Boltzmann 权重。
+- 机制判据引擎：输出 Ti 毒化、TEA 预组织、Si-O 削弱、Si-C 风险、PP 降解、LCB、过凝胶和氧化风险解释。
+- 文献与报告知识库：只读导入 docx、PDF 文本层或 OCR 文本，抽取报告线索并固定标注为 C 级证据。
+- 中文科研报告：生成带数据来源、证据等级、缺失数据声明和 mock 数据边界的报告。
 
-- A 级证据：真实 Gaussian、Multiwfn、NBO、QTAIM 或 NCI 计算结果，且收敛、频率、TS 虚频、IRC 和 provenance 完整。
-- B 级证据：真实实验数据，样品、工艺和表征条件明确。
-- C 级证据：文献线索或用户输入，尚未在当前体系复现。
-- D 级证据：示例数据、mock 数据或趋势假说，只能用于演示和提出问题。
+## Architecture
 
-没有真实 A / B 级数据时，系统必须写明：当前数据不足，不能形成可靠结论。
+项目采用前后端分离架构。
 
-## 核心公式
+```text
+frontend/        Next.js, React, TypeScript, TailwindCSS
+backend/         FastAPI, Pydantic, SQLAlchemy, SQLite
+scripts/         quality gates, smoke tests, parser audits
+docs/            scientific workflow, test reports, integration reports
+examples/        controlled examples and non-executed external QC templates
+integrated/      archived source assets from earlier Si-O subproject integration
+```
+
+核心分层原则：
+
+- scientific core：集中保存单位常数、能量公式、BDE、动力学和判据，避免公式散落。
+- parsers：只读解析 Gaussian、cube、NBO、QTAIM、NCI、GoodVibes 等文本输出，不执行外部文件。
+- API：通过 FastAPI 提供分子、Gaussian、cube、analysis、literature、reports、MCP 安全工作流接口。
+- UI：以资源表、工作台、详情面板和报告预览组织科研操作。
+- reports：把计算、文献、实验、示例数据分别标注来源和可信度。
+
+## Scientific Rules
+
+所有科学输出必须保留数据来源、单位、温度、方法、基组、provenance、evidence grade 和 is_mock 字段。
+
+证据等级：
+
+- A 级：真实 Gaussian、Multiwfn、NBO、QTAIM 或 NCI 计算结果，且收敛、频率、TS 虚频、IRC 和 provenance 完整。
+- B 级：真实实验数据，样品、工艺和表征条件明确。
+- C 级：文献线索或用户输入，尚未在当前体系复现。
+- D 级：示例数据、mock 数据或趋势假说，不能作为真实科研结论。
+
+没有 A / B 级数据时，报告必须写明当前数据不足，不能形成可靠结论。
+
+## Scientific Formulas
 
 单位常数：
 
@@ -58,8 +84,9 @@ Default T = 350 K
 Delta Gbind = G(complex) - sum G(fragments)
 Delta Gpoison = G(O-to-Ti complex) - G(C=C pi-complex)
 Delta Gpi = G(pi-complex) - G(free active site + monomer)
-Delta Gddagger = G(TS) - G(free active site + monomer)
-Delta Gddagger_complex = G(TS) - G(pi-complex)
+Delta Gddagger_insert = G(insertion TS) - G(free active site + monomer)
+Delta Gddagger_complex = G(insertion TS) - G(pi-complex)
+Delta Delta Gddagger = Delta Gddagger_candidate - Delta Gddagger_reference
 krel = exp[-Delta Delta Gddagger / RT]
 ```
 
@@ -74,52 +101,79 @@ R_branch = k_rec [PP radical]^2 + k_g [PP radical][M] + k_c [PP radical][coagent
 S_LCB = R_branch / (R_branch + R_scission + R_oxidation)
 ```
 
-## 主要页面
+## Requirements
 
-- 首页总览：项目资源、数据健康状态、待补充数据、候选排序和风险提醒。
-- 论文与报告知识库：真实文件实例、解析质量、OCR 文本导入、证据等级和 warnings。
-- 分子库：分子资源表、结构视图、功能位点和 provenance。
-- Gaussian 输入生成：任务模板、参数表单、输入文件预览和下载。
-- Gaussian 输出解析：日志输入、normalized JSON、解析质量和中文 warnings。
-- Si-O / Si-C 键实验室：键长、频率、键级、电荷、BCP、BDE 和稳定性判据。
-- TEA 助剂作用：Al-O、Al-Cl、Al-C=C 络合和过度捕获风险。
-- Ti 毒化判据：C=C pi-complex 与 O-to-Ti complex 的自由能竞争。
-- 插入反应能量面：Delta Gpi、Delta Gddagger、Delta Gproduct 和 krel。
-- 过氧化物自由基：RO-OR 均裂、PP 抽氢、beta-scission、复合、接枝和氧化风险。
-- 中文科研报告：章节大纲、报告预览、证据与数据来源面板。
+推荐环境：
 
-## 快速启动
+- Node.js 20 或更高版本
+- Python 3.11 或更高版本
+- Windows PowerShell、Git Bash、macOS shell 或 Linux shell
+- SQLite 用于 MVP 本地数据
 
-安装依赖：
+可选依赖：
+
+- RDKit：用于分子描述符和构象生成。如果不可用，平台会使用明确标注的降级描述符。
+- PyMuPDF / python-docx：用于只读文献抽取。
+- Gaussian、cubegen、Multiwfn、GoodVibes：默认不执行，仅在用户显式配置并单独确认的外部流程中作为模板对象。
+
+## Installation
+
+安装根目录和前端依赖：
 
 ```bash
 npm install
 npm --prefix frontend install
+```
+
+创建后端虚拟环境并安装依赖：
+
+```bash
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-启动服务：
+返回项目根目录：
+
+```bash
+cd ..
+```
+
+## Run
+
+启动后端：
 
 ```bash
 npm run dev:backend
+```
+
+启动前端：
+
+```bash
 npm run dev
 ```
 
-默认地址：
+默认访问地址：
 
-- 前端页面：http://localhost:3000
-- 后端 API：http://localhost:8000
-- OpenAPI 文档：http://localhost:8000/docs
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- OpenAPI: http://localhost:8000/docs
 
-## 常用验证
+## Validation
 
 后端测试：
 
 ```bash
 npm run test:backend
+```
+
+前端类型检查、lint 和构建：
+
+```bash
+npm --prefix frontend run typecheck
+npm --prefix frontend run lint
+npm --prefix frontend run build
 ```
 
 中文乱码审计：
@@ -134,18 +188,10 @@ npm run audit:mojibake
 backend\.venv\Scripts\python.exe scripts\scientific_rigor_audit.py
 ```
 
-全功能 API 烟测：
+全功能 API smoke test：
 
 ```bash
 backend\.venv\Scripts\python.exe scripts\full_function_smoke.py
-```
-
-前端验证：
-
-```bash
-npm --prefix frontend run typecheck
-npm --prefix frontend run lint
-npm --prefix frontend run build
 ```
 
 根目录质量门禁：
@@ -154,18 +200,34 @@ npm --prefix frontend run build
 python scripts\quality_gate.py
 ```
 
-## 安全说明
+UI smoke test 需要先启动前端和后端：
 
-- 默认不执行 Gaussian16。
-- 默认不执行 cubegen。
-- 默认不执行 Multiwfn。
-- 默认不执行 GoodVibes。
-- 默认不执行用户上传文件。
-- Gaussian、Multiwfn、cubegen 和 GoodVibes 相关页面只生成输入、命令模板或解析文本。
-- 上传文件只按文本或数据解析，不执行宏、脚本或外部程序。
-- 示例数据始终标注为 mock 或 example，不能作为真实科研结论。
+```bash
+npm run dev:backend
+npm run dev
+npm run test:e2e
+```
 
-## 文档索引
+## Security Boundary
+
+默认禁止：
+
+- 执行 Gaussian16。
+- 执行 cubegen。
+- 执行 Multiwfn。
+- 执行 GoodVibes。
+- 执行用户上传文件。
+- 将示例数据、mock 数据、文献线索自动升级为真实科研结论。
+
+默认允许：
+
+- 生成 Gaussian 输入文件。
+- 生成 cubegen、Multiwfn、GoodVibes 命令模板，并标注未执行。
+- 只读解析 Gaussian log/out、cube、NBO、QTAIM、NCI、GoodVibes 文本输出。
+- 生成中文报告草稿。
+- 对用户输入数据进行公式计算和机制判据评估。
+
+## Documentation
 
 - [科学计算工作流](docs/SCIENTIFIC_COMPUTATION_WORKFLOW.md)
 - [科学计算完整测试报告](docs/SCIENTIFIC_COMPUTATION_FULL_TEST_REPORT.md)
@@ -180,26 +242,29 @@ python scripts\quality_gate.py
 - [Si-O 子项目整合报告](docs/MERGE_REPORT.md)
 - [整合来源映射](docs/INTEGRATION_SOURCE_MAP.md)
 
-## Google Workspace 式交互逻辑
+## Repository Status
 
-前端按 Google 系列产品的交互方式组织科研任务：
+当前仓库为研究软件工程版本，适合用于本地开发、科研演示、机制判据验证和后续工程化迭代。
 
-- Drive 式资源管理：项目、文献、Gaussian 输出、cube 文件、实验数据和报告都作为资源管理。
-- Docs 式报告工作台：左侧章节大纲，中间报告预览，右侧证据与数据来源。
-- Sheets 式数据表：实验记录、能量表、候选矩阵和资源列表支持搜索、筛选和排序。
-- Colab 式计算模板：Gaussian 输入生成和解析流程以任务模板、参数、输出预览组织。
-- Cloud Console 式安全面板：API、任务日志、数据源状态、provenance 和安全边界集中显示。
+生产部署前建议补充：
 
-## 后续计划
+- 正式 LICENSE 文件。
+- 环境变量模板。
+- 数据库迁移策略。
+- 用户权限与项目隔离策略。
+- 更大规模真实 Gaussian、cube、NBO、QTAIM、NCI 输出样本的兼容性测试。
+- 持续集成工作流。
 
-- 真实 3Dmol cube 等值面渲染。
+## Roadmap
+
+- 真实 3Dmol / vtk.js cube 等值面渲染。
 - Multiwfn 结构化导入和 NBO 高级解析。
 - GoodVibes 真实格式样本扩展。
-- 批量 Gaussian 任务图与 SLURM 脚本生成。
-- 构象族 Boltzmann 权重和熵校正。
+- 批量 Gaussian 任务图、SLURM 脚本和任务队列。
+- 构象族 Boltzmann 权重、熵校正和 GoodVibes 汇总。
 - 论文全文章节级知识抽取与表格定位。
-- PostgreSQL 迁移与多项目协作。
+- PostgreSQL 多项目协作版本。
 
-## 排版说明
+## Citation and Use
 
-GitHub 会默认使用更重的字体渲染标题、表头、链接和代码块。本 README 已尽量统一视觉重量：不使用加粗标记，不使用多级标题，不使用 Markdown 表格，正文只保留必要的命令代码块。若继续扩展说明，请优先把长接口表、长测试矩阵和长报告内容放入 docs 目录。
+本仓库面向科研软件开发和机制建模验证。由示例数据得到的趋势仅用于验证软件逻辑，不能作为论文结论、专利结论或工程决策依据。真实科学结论必须来自可追溯的 A 级计算数据或 B 级实验数据，并经过人工审查。
