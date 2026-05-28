@@ -24,6 +24,7 @@ export type ModuleId =
   | "microstructure"
   | "builder"
   | "scientific"
+  | "connectors"
   | "parser"
   | "bond"
   | "density"

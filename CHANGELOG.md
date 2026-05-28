@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-05-28 - 科学计算连接器与 MCP 仿真接口
+
+- 新增科学计算连接器数据模型：`simulation_tools`、`simulation_jobs`、`simulation_parse_results`，保存工具配置、任务模板、只读解析结果、provenance、证据等级和安全边界。
+- 新增 `/api/simulation/*` 接口，支持 Gaussian、cubegen、Multiwfn、GoodVibes、SLURM 等工具登记、路径模板校验、任务草稿生成和只读 parser 调用。
+- 所有连接器任务默认 `will_execute = false`，路径校验不执行 version command；检测到路径穿越时返回中文错误。
+- MCP 工具清单扩展到 `parse_nbo`、`parse_qtaim`、`parse_nci`、`parse_goodvibes`、`calculate_insert_barrier`、`calculate_bde_sio`、`calculate_radical_kinetics`、`generate_cubegen_template`、`generate_multiwfn_qtaim_template`、`generate_multiwfn_nci_template`、`generate_goodvibes_parse_task`、`generate_slurm_script_template` 和 `generate_chinese_report`。
+- 前端新增“科学计算连接器”页面，展示工具注册表、安全边界、任务模板生成器、命令模板预览和 provenance 面板。
+- 中文报告新增科学计算连接器、MCP 工具清单、命令模板、只读解析结果、未执行任务清单和下一步可证伪计算任务章节。
+- 新增 `docs/SCIENTIFIC_COMPUTATION_CONNECTORS.md` 与 `docs/MCP_SIMULATION_INTERFACE.md`，明确连接器/MCP 的模板生成、只读解析和不执行外部程序边界。
+- 新增 `backend/tests/test_simulation_connectors.py`，覆盖非执行默认值、非法路径中文错误、任务模板、只读解析、MCP 白名单和未知工具拒绝。
+
 ## 2026-05-27 - 科学计算验证机制工作流
 
 - 新增 `GET /api/scientific-computation/task-matrix`，显式暴露 36 个 Gaussian / 后处理任务模板、关键输出、可靠性判据和“不执行外部软件”安全边界。

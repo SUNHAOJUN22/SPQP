@@ -527,3 +527,56 @@ class ReactionStateInput(BaseModel):
 class ReactionProfileAnalysisRequest(BaseModel):
     states: list[ReactionStateInput]
     temperature_k: float = DEFAULT_TEMPERATURE_K
+
+
+class SimulationToolRequest(BaseModel):
+    project_id: int | None = None
+    tool_type: Literal[
+        "gaussian16",
+        "formchk",
+        "cubegen",
+        "multiwfn",
+        "goodvibes",
+        "rdkit",
+        "slurm",
+        "local_queue",
+        "parser_only",
+    ] = "parser_only"
+    display_name: str = "只读解析器"
+    executable_path: str | None = None
+    default_mode: Literal["template_only", "parse_only", "disabled", "confirmed_execute"] = "template_only"
+    working_directory: str | None = None
+    allowed_extensions: list[str] = []
+
+
+class SimulationToolUpdateRequest(BaseModel):
+    display_name: str | None = None
+    executable_path: str | None = None
+    default_mode: Literal["template_only", "parse_only", "disabled", "confirmed_execute"] | None = None
+    working_directory: str | None = None
+    allowed_extensions: list[str] | None = None
+
+
+class SimulationJobRequest(BaseModel):
+    project_id: int | None = None
+    molecule_id: int | None = None
+    tool_id: int | None = None
+    tool_type: str = "gaussian16"
+    job_type: str = "gaussian_input"
+    execution_mode: Literal["template_only", "parse_only", "disabled", "confirmed_execute"] = "template_only"
+    input_files: list[str] = []
+    output_files_expected: list[str] = []
+    molecule_name: str = "MCSOMe"
+    coordinates: str = ""
+    method: str = "B3LYP"
+    basis: str = "Def2SVP"
+    charge: int = 0
+    multiplicity: int = 1
+
+
+class SimulationParseTextRequest(BaseModel):
+    file_name: str = "output.txt"
+    text: str
+    job_id: int | None = None
+    project_id: int | None = None
+    is_mock: bool = False

@@ -1,6 +1,6 @@
 # Pro Max Ultra 自动化质量审计报告
 
-- 测试时间：2026-05-28 09:51:49
+- 测试时间：2026-05-28 15:06:02
 - 测试环境：Windows / PowerShell / FastAPI TestClient / 本地 SQLite / Next.js 项目静态检查
 - 通过数量：14
 - 失败数量：0
@@ -15,16 +15,16 @@
 | 科学公式 | 自由能、速率与温度边界 | PASS | 0.0 | ΔGbind/ΔGpoison/ΔGπ/ΔG‡/krel 边界正确。 |
 | 科学公式 | Si-C/Si-O/RO-OR BDE | PASS | 0.0 | BDE 单位转换与键类型标注可复现。 |
 | 科学判据 | Ti 毒化、Si-C 稳定与 ΦLCB 边界 | PASS | 0.0 | Ti 毒化、自由基竞争和 mock 边界返回中文机制判断。 |
-| Parser | Gaussian 完整/失败解析 | PASS | 1.8 | Gaussian parser 覆盖正常终止、Gibbs、虚频、HOMO/LUMO、NBO 与失败中文提示。 |
+| Parser | Gaussian 完整/失败解析 | PASS | 1.6 | Gaussian parser 覆盖正常终止、Gibbs、虚频、HOMO/LUMO、NBO 与失败中文提示。 |
 | Parser | cube 元数据、数值范围和错误路径 | PASS | 0.1 | cube 头、grid、atom、数值范围、下采样体素、剖切和差分预览可审计。 |
-| 文献输入 | V4 DOCX 只读抽取可用性 | PASS | 0.6 | 未找到本机报告 DOCX，已验证内置 C 级报告方向线索与缺失文件边界：C:\Users\resj6\Downloads\SiO_SiC_过氧化物_PP长链支化交联降解全景深度终稿_半小时增强版 (2).docx |
-| API | 核心量子化学与自由基接口 | PASS | 61.0 | 核心 API、科学计算任务矩阵、能量工作台与 BDE 入口正常响应且保持中文 provenance/mock 边界。 |
-| API | 错误路径与中文提示 | PASS | 7.5 | 缺失能量、空 log、非法 cube 均返回中文错误或 failed 质量评分。 |
-| API | GoodVibes/QTAIM/NCI/MCP 安全扩展 | PASS | 26.0 | 只读 parser 与 MCP 白名单工作流可追踪、可测试。 |
+| 文献输入 | V4 DOCX 只读抽取可用性 | PASS | 0.5 | 未找到本机报告 DOCX，已验证内置 C 级报告方向线索与缺失文件边界：C:\Users\resj6\Downloads\SiO_SiC_过氧化物_PP长链支化交联降解全景深度终稿_半小时增强版 (2).docx |
+| API | 核心量子化学与自由基接口 | PASS | 59.7 | 核心 API、科学计算任务矩阵、能量工作台与 BDE 入口正常响应且保持中文 provenance/mock 边界。 |
+| API | 错误路径与中文提示 | PASS | 7.2 | 缺失能量、空 log、非法 cube 均返回中文错误或 failed 质量评分。 |
+| API | GoodVibes/QTAIM/NCI/MCP 安全扩展 | PASS | 25.5 | 只读 parser 与 MCP 白名单工作流可追踪、可测试。 |
 | 数据库 | 已实现表与提示要求表覆盖 | PASS | 0.3 | 数据库表覆盖完整。 |
-| 安全 | 上传路径与文件类型边界 | PASS | 8.0 | 上传白名单、路径穿越和仅读取边界通过。 |
-| 性能 | 1000 点 cube 快速元数据审计 | PASS | 0.4 | 1000 点 cube 元数据解析 0.000s。 |
-| MCP/外部工具 | 外部化学软件执行边界 | PASS | 0.3 | README 与 API provenance 均声明不执行外部化学软件。 |
+| 安全 | 上传路径与文件类型边界 | PASS | 8.1 | 上传白名单、路径穿越和仅读取边界通过。 |
+| 性能 | 1000 点 cube 快速元数据审计 | PASS | 0.3 | 1000 点 cube 元数据解析 0.000s。 |
+| MCP/外部工具 | 外部化学软件执行边界 | PASS | 0.2 | README 与 API provenance 均声明不执行外部化学软件。 |
 | 剩余矩阵 | 真实三维等值面重建 | SKIP | 0.0 | 当前已实现真实 cube 下采样点、剖切矩阵和差分预览；marching-cubes/Three.js 完整等值面重建仍未实现，本审计不把它标记为通过。 |
 
 ## 修复内容

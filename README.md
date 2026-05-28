@@ -32,6 +32,8 @@ SiO-SiC Polyolefin Quantum Mechanism Studio Ultra
 - 科学计算核心：统一实现能量换算、Delta G 公式、BDE、相对速率、自由基竞争和 Boltzmann 权重。
 - 机制判据引擎：输出 Ti 毒化、TEA 预组织、Si-O 削弱、Si-C 风险、PP 降解、LCB、过凝胶和氧化风险解释。
 - 文献与报告知识库：只读导入 docx、PDF 文本层或 OCR 文本，抽取报告线索并固定标注为 C 级证据。
+- 科学计算连接器：登记 Gaussian、cubegen、Multiwfn、GoodVibes、SLURM 等工具配置，生成命令模板和任务草稿，但默认不执行外部程序。
+- MCP 安全工具接口：向 Agent 暴露 Gaussian 输入生成、cube / NBO / QTAIM / NCI / GoodVibes 只读解析、BDE、插入势垒和自由基动力学等能力。
 - 中文科研报告：生成带数据来源、证据等级、缺失数据声明和 mock 数据边界的报告。
 
 ## Architecture
@@ -52,6 +54,7 @@ integrated/      archived source assets from earlier Si-O subproject integration
 - scientific core：集中保存单位常数、能量公式、BDE、动力学和判据，避免公式散落。
 - parsers：只读解析 Gaussian、cube、NBO、QTAIM、NCI、GoodVibes 等文本输出，不执行外部文件。
 - API：通过 FastAPI 提供分子、Gaussian、cube、analysis、literature、reports、MCP 安全工作流接口。
+- simulation connectors：提供外部科学计算工具登记、模板生成、只读解析和 MCP 工具映射，所有任务默认 `will_execute = false`。
 - UI：以资源表、工作台、详情面板和报告预览组织科研操作。
 - reports：把计算、文献、实验、示例数据分别标注来源和可信度。
 
@@ -210,7 +213,34 @@ npm run dev
 npm run test:e2e
 ```
 
+## Simulation Connectors and MCP
+
+科学计算连接器用于把外部科学计算程序纳入可审计工作流，但默认只生成模板或只读解析文本。
+
+主要接口：
+
+```text
+GET /api/simulation/tools
+POST /api/simulation/tools
+POST /api/simulation/jobs
+POST /api/simulation/parse/gaussian-log
+POST /api/simulation/parse/cube
+POST /api/simulation/parse/nbo
+POST /api/simulation/parse/qtaim
+POST /api/simulation/parse/nci
+POST /api/simulation/parse/goodvibes
+GET /api/mcp/tools
+POST /api/mcp/run-tool
+```
+
+相关文档：
+
+- `docs/SCIENTIFIC_COMPUTATION_CONNECTORS.md`
+- `docs/MCP_SIMULATION_INTERFACE.md`
+
 ## Security Boundary
+
+平台默认不执行 Gaussian，不执行 cubegen，不执行 Multiwfn，也不执行 GoodVibes 或用户上传文件。
 
 默认禁止：
 

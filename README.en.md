@@ -30,6 +30,8 @@ Current platform capabilities include:
 - Scientific computation core: unit conversion, Delta G formulas, BDE, relative rates, radical competition, and Boltzmann weighting.
 - Mechanistic decision engine: Chinese explanations for Ti poisoning, TEA preorganization, Si-O weakening, Si-C risk, PP degradation, LCB, over-gelation, and oxidation risk.
 - Literature and report knowledge base: read-only docx, PDF text-layer, or OCR text import with literature clues fixed at evidence grade C.
+- Scientific computation connectors: register Gaussian, cubegen, Multiwfn, GoodVibes, and SLURM configurations, generate command templates and task drafts, and keep external execution disabled by default.
+- MCP-safe tool interface: expose Gaussian input generation, cube / NBO / QTAIM / NCI / GoodVibes read-only parsing, BDE, insertion barriers, and radical kinetics to agent workflows.
 - Chinese scientific report generation: reports with data sources, evidence grades, missing-data statements, and mock-data boundaries.
 
 ## Architecture
@@ -50,6 +52,7 @@ Layering principles:
 - scientific core: centralizes unit constants, energy formulas, BDE, kinetics, and decision rules.
 - parsers: read-only parsing for Gaussian, cube, NBO, QTAIM, NCI, and GoodVibes text outputs.
 - API: FastAPI endpoints for molecules, Gaussian, cube, analysis, literature, reports, and MCP safety workflows.
+- simulation connectors: external scientific-tool registration, template generation, read-only parsing, and MCP tool mapping; all jobs default to `will_execute = false`.
 - UI: resource tables, workspaces, detail panels, and report previews.
 - reports: separate computation, literature, experiment, and example data by provenance and reliability.
 
@@ -207,6 +210,31 @@ npm run dev:backend
 npm run dev
 npm run test:e2e
 ```
+
+## Simulation Connectors and MCP
+
+Simulation connectors bring external scientific-computation tools into an auditable workflow while only generating templates or parsing provided text by default.
+
+Core endpoints:
+
+```text
+GET /api/simulation/tools
+POST /api/simulation/tools
+POST /api/simulation/jobs
+POST /api/simulation/parse/gaussian-log
+POST /api/simulation/parse/cube
+POST /api/simulation/parse/nbo
+POST /api/simulation/parse/qtaim
+POST /api/simulation/parse/nci
+POST /api/simulation/parse/goodvibes
+GET /api/mcp/tools
+POST /api/mcp/run-tool
+```
+
+Related documents:
+
+- `docs/SCIENTIFIC_COMPUTATION_CONNECTORS.md`
+- `docs/MCP_SIMULATION_INTERFACE.md`
 
 ## Security Boundary
 

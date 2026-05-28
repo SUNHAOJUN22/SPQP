@@ -57,6 +57,7 @@ export const navItems: NavItem[] = [
   { id: "residence", label: "停留时间窗口", icon: Timer },
   { id: "microstructure", label: "乙烯/等规度影响", icon: Workflow },
   { id: "scientific", label: "科学计算工作流", icon: Binary },
+  { id: "connectors", label: "科学计算连接器", icon: Workflow },
   { id: "builder", label: "Gaussian 输入生成", icon: ClipboardList },
   { id: "parser", label: "Gaussian 输出解析", icon: UploadCloud },
   { id: "bond", label: "Si–O / Si–C 键实验室", icon: Atom },

@@ -716,6 +716,64 @@ class McpTask(Base, TimestampMixin):
     provenance: Mapped[dict] = mapped_column(JSON, default=dict)
 
 
+class SimulationTool(Base, TimestampMixin):
+    __tablename__ = "simulation_tools"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id"), nullable=True)
+    tool_type: Mapped[str] = mapped_column(String(120), index=True)
+    display_name: Mapped[str] = mapped_column(String(240))
+    executable_path: Mapped[str | None] = mapped_column(String(600), nullable=True)
+    is_configured: Mapped[bool] = mapped_column(Boolean, default=False)
+    can_execute: Mapped[bool] = mapped_column(Boolean, default=False)
+    default_mode: Mapped[str] = mapped_column(String(80), default="template_only")
+    safety_level: Mapped[str] = mapped_column(String(80), default="external-disabled")
+    allowed_extensions_json: Mapped[list] = mapped_column(JSON, default=list)
+    working_directory: Mapped[str | None] = mapped_column(String(600), nullable=True)
+    validation_status: Mapped[str] = mapped_column(String(80), default="missing")
+    warnings_json: Mapped[list] = mapped_column(JSON, default=list)
+
+
+class SimulationJob(Base, TimestampMixin):
+    __tablename__ = "simulation_jobs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id"), nullable=True)
+    molecule_id: Mapped[int | None] = mapped_column(ForeignKey("molecules.id"), nullable=True)
+    tool_id: Mapped[int | None] = mapped_column(ForeignKey("simulation_tools.id"), nullable=True)
+    job_type: Mapped[str] = mapped_column(String(160))
+    tool_type: Mapped[str] = mapped_column(String(120), default="parser_only")
+    execution_mode: Mapped[str] = mapped_column(String(80), default="template_only")
+    status: Mapped[str] = mapped_column(String(80), default="draft")
+    input_files_json: Mapped[list] = mapped_column(JSON, default=list)
+    output_files_expected_json: Mapped[list] = mapped_column(JSON, default=list)
+    generated_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    command_template: Mapped[str | None] = mapped_column(Text, nullable=True)
+    will_execute: Mapped[bool] = mapped_column(Boolean, default=False)
+    requires_user_confirmation: Mapped[bool] = mapped_column(Boolean, default=True)
+    evidence_grade: Mapped[str] = mapped_column(String(8), default="D")
+    provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class SimulationParseResult(Base, TimestampMixin):
+    __tablename__ = "simulation_parse_results"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id"), nullable=True)
+    job_id: Mapped[int | None] = mapped_column(ForeignKey("simulation_jobs.id"), nullable=True)
+    parser_name: Mapped[str] = mapped_column(String(160))
+    source_file: Mapped[str] = mapped_column(String(600))
+    source_type: Mapped[str] = mapped_column(String(120), default="text")
+    quality: Mapped[str] = mapped_column(String(80), default="partial")
+    normalized_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    units_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    warnings_json: Mapped[list] = mapped_column(JSON, default=list)
+    errors_json: Mapped[list] = mapped_column(JSON, default=list)
+    evidence_grade: Mapped[str] = mapped_column(String(8), default="D")
+    is_mock: Mapped[bool] = mapped_column(Boolean, default=False)
+    provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
 class AuditLog(Base, TimestampMixin):
     __tablename__ = "audit_logs"
 

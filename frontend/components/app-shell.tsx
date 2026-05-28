@@ -30,6 +30,7 @@ const EthyleneIsotacticityPanel = dynamic(() => import("@/components/modules/rad
 const DashboardPanel = dynamic(() => import("@/components/modules/dashboard-panel").then((m) => m.DashboardPanel), { ssr: false, loading: () => <ModuleLoading label="总览驾驶舱" /> });
 const MoleculeLibraryPanel = dynamic(() => import("@/components/modules/molecule-library-panel").then((m) => m.MoleculeLibraryPanel), { ssr: false, loading: () => <ModuleLoading label="分子库" /> });
 const ScientificComputationPanel = dynamic(() => import("@/components/modules/scientific-computation-panel").then((m) => m.ScientificComputationPanel), { ssr: false, loading: () => <ModuleLoading label="科学计算工作流" /> });
+const SimulationConnectorsPanel = dynamic(() => import("@/components/modules/simulation-connectors-panel").then((m) => m.SimulationConnectorsPanel), { ssr: false, loading: () => <ModuleLoading label="科学计算连接器" /> });
 const GaussianBuilderPanel = dynamic(() => import("@/components/modules/gaussian-builder-panel").then((m) => m.GaussianBuilderPanel), { ssr: false, loading: () => <ModuleLoading label="Gaussian 输入生成" /> });
 const SiOBondLabPanel = dynamic(() => import("@/components/modules/sio-bond-lab-panel").then((m) => m.SiOBondLabPanel), { ssr: false, loading: () => <ModuleLoading label="硅氧键实验室" /> });
 const ElectronDensityPanel = dynamic(() => import("@/components/modules/electron-density-panel").then((m) => m.ElectronDensityPanel), { ssr: false, loading: () => <ModuleLoading label="电子云密度" /> });
@@ -66,6 +67,7 @@ const moduleTitles: Record<ModuleId, { title: string; subtitle: string }> = {
   residence: { title: "停留时间窗口", subtitle: "Residence Time and Radical Flux Window" },
   microstructure: { title: "乙烯/等规度影响", subtitle: "Ethylene Incorporation and Isotacticity" },
   scientific: { title: "科学计算工作流", subtitle: "Scientific Computation Workflow" },
+  connectors: { title: "科学计算连接器", subtitle: "Simulation Connectors" },
   builder: { title: "Gaussian 输入生成", subtitle: "Gaussian Input Builder" },
   parser: { title: "Gaussian 输出解析", subtitle: "Gaussian Output Parser" },
   bond: { title: "硅氧键本征属性", subtitle: "Intrinsic Si–O Bond Descriptors" },
@@ -152,6 +154,7 @@ function AppShellInner() {
       case "residence": return <ResidenceTimeWindowPanel />;
       case "microstructure": return <EthyleneIsotacticityPanel />;
       case "scientific": return <ScientificComputationPanel />;
+      case "connectors": return <SimulationConnectorsPanel />;
       case "builder": return <GaussianBuilderPanel selected={selected} task={task} setTask={setTask} />;
       case "parser": return <GaussianParserPanel parserText={parserText} setParserText={setParserText} />;
       case "bond": return <SiOBondLabPanel selected={selected} onSelect={setSelectedMoleculeKey} />;

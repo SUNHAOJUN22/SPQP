@@ -44,7 +44,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "量子计算",
     emoji: "🧪",
-    ids: ["scientific", "builder", "parser", "merged"],
+    ids: ["scientific", "connectors", "builder", "parser", "merged"],
   },
   {
     label: "机理分析",

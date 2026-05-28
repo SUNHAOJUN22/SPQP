@@ -45,6 +45,14 @@ REPORT_SECTIONS = [
     "过氧化物比较维度",
     "实验表征逻辑",
     "顶尖 PI 工作标准",
+    "科学计算连接器配置",
+    "MCP 工具清单",
+    "生成的 Gaussian 输入模板",
+    "cubegen / Multiwfn / GoodVibes 命令模板",
+    "只读解析结果",
+    "外部执行安全边界",
+    "未执行任务清单",
+    "下一步可证伪计算任务",
     "DCS / MCSOMe / DMOS 最终排序",
     "数据可靠性说明",
     "Gaussian 输入文件附录",
@@ -88,6 +96,14 @@ SECTION_KEYS = {
     "过氧化物比较维度": "peroxide_comparison_dimensions",
     "实验表征逻辑": "experimental_characterization_logic",
     "顶尖 PI 工作标准": "top_pi_working_standard",
+    "科学计算连接器配置": "simulation_connector_config",
+    "MCP 工具清单": "mcp_tool_inventory",
+    "生成的 Gaussian 输入模板": "generated_gaussian_templates",
+    "cubegen / Multiwfn / GoodVibes 命令模板": "external_command_templates",
+    "只读解析结果": "read_only_parse_results",
+    "外部执行安全边界": "external_execution_safety_boundary",
+    "未执行任务清单": "unexecuted_simulation_jobs",
+    "下一步可证伪计算任务": "next_falsifiable_simulation_tasks",
     "DCS / MCSOMe / DMOS 最终排序": "final_ranking",
     "数据可靠性说明": "data_reliability",
     "Gaussian 输入文件附录": "gaussian_appendix",
@@ -179,6 +195,39 @@ def _default_report_driven_section(section: str) -> str:
             "POST /api/reports/generate 将报告线索写入中文章节；"
             "POST /api/research/top-scientist-prompt 生成带证据等级和可证伪任务的研究 Prompt。"
         ),
+        "科学计算连接器配置": (
+            "当前科学计算连接器默认处于 template_only / parse_only 模式。工具路径可登记为配置项，"
+            "但平台不会自动探测系统路径，也不会执行 Gaussian、cubegen、Multiwfn、GoodVibes 或 version command。"
+        ),
+        "MCP 工具清单": (
+            "MCP 工具清单包括 generate_gaussian_input、parse_gaussian_log、parse_cube、parse_nbo、parse_qtaim、"
+            "parse_nci、parse_goodvibes、calculate_delta_g_bind、calculate_delta_g_poison、calculate_insert_barrier、"
+            "calculate_bde_sic、calculate_bde_sio、calculate_radical_kinetics、generate_cubegen_template、"
+            "generate_multiwfn_qtaim_template、generate_multiwfn_nci_template、generate_goodvibes_parse_task、"
+            "generate_slurm_script_template 和 generate_chinese_report。所有工具默认不执行外部程序。"
+        ),
+        "生成的 Gaussian 输入模板": (
+            "当前报告未附加真实 Gaussian 输入模板。生成的 .gjf/.com 文本只能作为任务草稿，不能作为已完成计算证据。"
+        ),
+        "cubegen / Multiwfn / GoodVibes 命令模板": (
+            "本报告中列出的 cubegen、Multiwfn、GoodVibes 相关命令均为模板，除非用户显式确认并在安全工作目录内执行，"
+            "否则本平台不会运行外部科学计算程序。"
+        ),
+        "只读解析结果": (
+            "当前文件未提供真实外部输出解析结果。只有用户上传真实 log/out/cube/NBO/QTAIM/NCI/GoodVibes 文本并完成解析后，"
+            "相关字段才可能进入 A 级计算证据候选。"
+        ),
+        "外部执行安全边界": (
+            "外部执行默认关闭：will_execute = false。Simulation Job 只保存模板、输入文本、命令草稿和输出文件预期；"
+            "任何真实执行都必须在项目安全目录内经过二次确认。"
+        ),
+        "未执行任务清单": (
+            "当前所有 Simulation Jobs 均按未执行任务记录。未执行任务只能用于计划和复现实验设计，不能写成真实结果。"
+        ),
+        "下一步可证伪计算任务": (
+            "建议优先生成 DCS/MCSOMe/DMOS 的 isolated monomer opt/freq/NBO、TEA complex、Ti pi-complex、"
+            "O-to-Ti poison complex、insertion TS/IRC、Si-C BDE 和 RO-OR homolysis 模板；完成真实计算后再上传输出解析。"
+        ),
     }
     return defaults.get(section, "当前文件未提供")
 
@@ -242,7 +291,20 @@ def generate_markdown_report(title: str, payload: dict[str, Any]) -> str:
             "文献证据等级与未验证假说",
         }:
             value = payload.get(SECTION_KEYS[section], _default_radical_mechanism())
-        elif section in {"Si–C 连接稳定性", "羰基三分法", "乙烯/等规度/结晶度影响", "软件化执行接口"}:
+        elif section in {
+            "Si–C 连接稳定性",
+            "羰基三分法",
+            "乙烯/等规度/结晶度影响",
+            "软件化执行接口",
+            "科学计算连接器配置",
+            "MCP 工具清单",
+            "生成的 Gaussian 输入模板",
+            "cubegen / Multiwfn / GoodVibes 命令模板",
+            "只读解析结果",
+            "外部执行安全边界",
+            "未执行任务清单",
+            "下一步可证伪计算任务",
+        }:
             value = payload.get(SECTION_KEYS[section], _default_report_driven_section(section))
         elif section == "证据等级系统":
             value = payload.get(SECTION_KEYS[section], _default_evidence_level_system())

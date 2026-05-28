@@ -29,6 +29,9 @@ from app.models.database import (
     MonomerFamily,
     PeroxideSpecies,
     Report,
+    SimulationJob,
+    SimulationParseResult,
+    SimulationTool,
     ThesisEntity,
 )
 from app.schemas.api import (
@@ -73,6 +76,10 @@ from app.schemas.api import (
     ReportDocxImportResponse,
     ResidenceTimeWindowRequest,
     ScientificEnergyWorkbenchRequest,
+    SimulationJobRequest,
+    SimulationParseTextRequest,
+    SimulationToolRequest,
+    SimulationToolUpdateRequest,
     SiCStabilityRequest,
     TEABindingRequest,
     ThesisImportRequest,
@@ -129,6 +136,12 @@ from app.services.radical_v4 import (
     sic_stability,
     unified_lcb_framework,
 )
+from app.services.simulation_connectors import (
+    build_simulation_job_template,
+    default_simulation_tools,
+    parse_simulation_text,
+    validate_tool_template,
+)
 from app.services.ultra_science import (
     calculate_boltzmann_weights,
     calculate_bde_sic as ultra_calculate_bde_sic,
@@ -157,6 +170,49 @@ def _upload_name_error(file_name: str | None, allowed_extensions: set[str] | Non
     if Path(raw_name).suffix.lower() not in allowed_extensions:
         return "不允许的文件类型。"
     return None
+
+
+def _simulation_tool_to_dict(row: SimulationTool) -> dict[str, Any]:
+    return {
+        "id": row.id,
+        "project_id": row.project_id,
+        "tool_type": row.tool_type,
+        "display_name": row.display_name,
+        "executable_path": row.executable_path,
+        "is_configured": row.is_configured,
+        "can_execute": row.can_execute,
+        "default_mode": row.default_mode,
+        "safety_level": row.safety_level,
+        "allowed_extensions": row.allowed_extensions_json or [],
+        "working_directory": row.working_directory,
+        "validation_status": row.validation_status,
+        "warnings": row.warnings_json or [],
+        "created_at": row.created_at.isoformat() if row.created_at else None,
+        "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+def _simulation_job_to_dict(row: SimulationJob) -> dict[str, Any]:
+    return {
+        "id": row.id,
+        "project_id": row.project_id,
+        "molecule_id": row.molecule_id,
+        "tool_id": row.tool_id,
+        "tool_type": row.tool_type,
+        "job_type": row.job_type,
+        "execution_mode": row.execution_mode,
+        "status": row.status,
+        "input_files": row.input_files_json or [],
+        "output_files_expected": row.output_files_expected_json or [],
+        "generated_text": row.generated_text,
+        "command_template": row.command_template,
+        "will_execute": row.will_execute,
+        "requires_user_confirmation": row.requires_user_confirmation,
+        "evidence_grade": row.evidence_grade,
+        "provenance": row.provenance_json or {},
+        "created_at": row.created_at.isoformat() if row.created_at else None,
+        "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+    }
 
 
 @router.get("/health")
@@ -1494,6 +1550,237 @@ def mock_decision_matrix() -> dict:
     }
 
 
+@router.get("/simulation/tools")
+def list_simulation_tools_endpoint(db: Session = Depends(get_db)) -> dict:
+    rows = db.scalars(select(SimulationTool).order_by(SimulationTool.id)).all()
+    persisted = [_simulation_tool_to_dict(row) for row in rows]
+    persisted_types = {tool["tool_type"] for tool in persisted}
+    defaults = [tool for tool in default_simulation_tools() if tool["tool_type"] not in persisted_types]
+    tools = persisted + defaults
+    return {
+        "tools": tools,
+        "safety_boundary": "默认仅生成模板和只读解析，不执行 Gaussian、cubegen、Multiwfn、GoodVibes 或用户上传文件。",
+        "provenance": "Simulation Tool Registry；未自动探测系统路径，未执行 version command。",
+    }
+
+
+@router.post("/simulation/tools")
+def create_simulation_tool(payload: SimulationToolRequest, db: Session = Depends(get_db)) -> dict:
+    tool_dict = payload.model_dump()
+    validation = validate_tool_template(tool_dict)
+    if validation["validation_status"] == "invalid-path":
+        raise HTTPException(status_code=400, detail="检测到非法路径，禁止登记科学计算工具。")
+    row = SimulationTool(
+        project_id=payload.project_id,
+        tool_type=payload.tool_type,
+        display_name=payload.display_name,
+        executable_path=payload.executable_path,
+        is_configured=validation["is_configured"],
+        can_execute=validation["can_execute"],
+        default_mode=payload.default_mode,
+        safety_level="external-disabled" if payload.tool_type not in {"parser_only", "rdkit"} else "parser-only",
+        allowed_extensions_json=payload.allowed_extensions,
+        working_directory=payload.working_directory,
+        validation_status=validation["validation_status"],
+        warnings_json=validation["warnings"],
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {
+        "tool": _simulation_tool_to_dict(row),
+        "validation": validation,
+        "provenance": "工具路径只做格式登记；未执行外部程序。",
+    }
+
+
+@router.get("/simulation/tools/{tool_id}")
+def get_simulation_tool(tool_id: int, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationTool, tool_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算工具。")
+    return {"tool": _simulation_tool_to_dict(row)}
+
+
+@router.patch("/simulation/tools/{tool_id}")
+def update_simulation_tool(tool_id: int, payload: SimulationToolUpdateRequest, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationTool, tool_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算工具。")
+    updates = payload.model_dump(exclude_unset=True)
+    if "allowed_extensions" in updates:
+        row.allowed_extensions_json = updates.pop("allowed_extensions")
+    for key, value in updates.items():
+        setattr(row, key, value)
+    validation = validate_tool_template(_simulation_tool_to_dict(row))
+    if validation["validation_status"] == "invalid-path":
+        db.rollback()
+        raise HTTPException(status_code=400, detail="检测到非法路径，禁止更新科学计算工具。")
+    row.is_configured = validation["is_configured"]
+    row.can_execute = validation["can_execute"]
+    row.validation_status = validation["validation_status"]
+    row.warnings_json = validation["warnings"]
+    db.commit()
+    db.refresh(row)
+    return {"tool": _simulation_tool_to_dict(row), "validation": validation}
+
+
+@router.post("/simulation/tools/{tool_id}/validate-template")
+def validate_simulation_tool_template(tool_id: int, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationTool, tool_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算工具。")
+    validation = validate_tool_template(_simulation_tool_to_dict(row))
+    row.is_configured = validation["is_configured"]
+    row.can_execute = validation["can_execute"]
+    row.validation_status = validation["validation_status"]
+    row.warnings_json = validation["warnings"]
+    db.commit()
+    return {"tool": _simulation_tool_to_dict(row), "validation": validation}
+
+
+@router.post("/simulation/jobs")
+def create_simulation_job(payload: SimulationJobRequest, db: Session = Depends(get_db)) -> dict:
+    template = build_simulation_job_template(payload)
+    row = SimulationJob(
+        project_id=payload.project_id,
+        molecule_id=payload.molecule_id,
+        tool_id=payload.tool_id,
+        tool_type=template["tool_type"],
+        job_type=template["job_type"],
+        execution_mode=template["execution_mode"],
+        status=template["status"],
+        input_files_json=template["input_files"],
+        output_files_expected_json=template["output_files_expected"],
+        generated_text=template["generated_text"],
+        command_template=template["command_template"],
+        will_execute=False,
+        requires_user_confirmation=template["requires_user_confirmation"],
+        evidence_grade="D",
+        provenance_json=template["provenance"],
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {
+        "job": _simulation_job_to_dict(row),
+        "warnings": template["warnings"],
+        "safety_boundary": "任务草稿 will_execute = false；平台未运行外部科学计算程序。",
+    }
+
+
+@router.get("/simulation/jobs")
+def list_simulation_jobs(db: Session = Depends(get_db)) -> dict:
+    rows = db.scalars(select(SimulationJob).order_by(SimulationJob.id.desc())).all()
+    return {
+        "jobs": [_simulation_job_to_dict(row) for row in rows],
+        "provenance": "Simulation Job Builder；所有任务默认不执行。",
+    }
+
+
+@router.get("/simulation/jobs/{job_id}")
+def get_simulation_job(job_id: int, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationJob, job_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算任务。")
+    return {"job": _simulation_job_to_dict(row)}
+
+
+@router.post("/simulation/jobs/{job_id}/generate-template")
+def regenerate_simulation_job_template(job_id: int, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationJob, job_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算任务。")
+    return {
+        "job": _simulation_job_to_dict(row),
+        "generated_text": row.generated_text,
+        "command_template": row.command_template,
+        "safety_boundary": "仅返回已保存模板，不执行命令。",
+    }
+
+
+@router.post("/simulation/jobs/{job_id}/mark-ready")
+def mark_simulation_job_ready(job_id: int, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationJob, job_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算任务。")
+    row.status = "ready"
+    row.will_execute = False
+    row.requires_user_confirmation = True
+    db.commit()
+    db.refresh(row)
+    return {
+        "job": _simulation_job_to_dict(row),
+        "warning": "任务已标记为 ready，但 will_execute 仍为 false；本平台不会自动运行外部程序。",
+    }
+
+
+@router.post("/simulation/jobs/{job_id}/cancel")
+def cancel_simulation_job(job_id: int, db: Session = Depends(get_db)) -> dict:
+    row = db.get(SimulationJob, job_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="未找到指定科学计算任务。")
+    row.status = "cancelled"
+    row.will_execute = False
+    db.commit()
+    db.refresh(row)
+    return {"job": _simulation_job_to_dict(row), "provenance": "仅取消任务草稿；未停止任何外部进程。"}
+
+
+def _store_simulation_parse_result(parser_name: str, payload: SimulationParseTextRequest, db: Session) -> dict:
+    parsed = parse_simulation_text(parser_name, payload.text, payload.file_name, payload.is_mock)
+    row = SimulationParseResult(
+        project_id=payload.project_id,
+        job_id=payload.job_id,
+        parser_name=parsed["parser_name"],
+        source_file=parsed["source_file"],
+        source_type=parsed["source_type"],
+        quality=parsed["quality"],
+        normalized_json=parsed["normalized_json"],
+        units_json=parsed["units"],
+        warnings_json=parsed["warnings"],
+        errors_json=parsed["errors"],
+        evidence_grade=parsed["evidence_grade"],
+        is_mock=parsed["is_mock"],
+        provenance_json=parsed["provenance"],
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    parsed["id"] = row.id
+    return parsed
+
+
+@router.post("/simulation/parse/gaussian-log")
+def simulation_parse_gaussian_log(payload: SimulationParseTextRequest, db: Session = Depends(get_db)) -> dict:
+    return _store_simulation_parse_result("gaussian_log", payload, db)
+
+
+@router.post("/simulation/parse/cube")
+def simulation_parse_cube(payload: SimulationParseTextRequest, db: Session = Depends(get_db)) -> dict:
+    return _store_simulation_parse_result("cube", payload, db)
+
+
+@router.post("/simulation/parse/nbo")
+def simulation_parse_nbo(payload: SimulationParseTextRequest, db: Session = Depends(get_db)) -> dict:
+    return _store_simulation_parse_result("nbo", payload, db)
+
+
+@router.post("/simulation/parse/qtaim")
+def simulation_parse_qtaim(payload: SimulationParseTextRequest, db: Session = Depends(get_db)) -> dict:
+    return _store_simulation_parse_result("qtaim", payload, db)
+
+
+@router.post("/simulation/parse/nci")
+def simulation_parse_nci(payload: SimulationParseTextRequest, db: Session = Depends(get_db)) -> dict:
+    return _store_simulation_parse_result("nci", payload, db)
+
+
+@router.post("/simulation/parse/goodvibes")
+def simulation_parse_goodvibes(payload: SimulationParseTextRequest, db: Session = Depends(get_db)) -> dict:
+    return _store_simulation_parse_result("goodvibes", payload, db)
+
+
 @router.post("/reports/generate")
 def reports_generate(payload: ReportRequest, db: Session = Depends(get_db)) -> dict:
     report_payload = dict(payload.payload)
@@ -1578,6 +1865,14 @@ def mcp_run_tool(payload: McpToolRunRequest, db: Session = Depends(get_db)) -> d
         result = parse_gaussian_log_text(str(arguments.get("text", "")), str(arguments.get("file_name", "mcp.log"))).model_dump()
     elif tool_name == "parse_cube":
         result = parse_cube_metadata(str(arguments.get("text", "")), str(arguments.get("file_name", "mcp.cube")))
+    elif tool_name == "parse_nbo":
+        result = parse_simulation_text("nbo", str(arguments.get("text", "")), str(arguments.get("file_name", "mcp.nbo")))
+    elif tool_name == "parse_qtaim":
+        result = parse_simulation_text("qtaim", str(arguments.get("text", "")), str(arguments.get("file_name", "mcp_qtaim.txt")))
+    elif tool_name == "parse_nci":
+        result = parse_simulation_text("nci", str(arguments.get("text", "")), str(arguments.get("file_name", "mcp_nci.txt")))
+    elif tool_name == "parse_goodvibes":
+        result = parse_simulation_text("goodvibes", str(arguments.get("text", "")), str(arguments.get("file_name", "goodvibes.out")))
     elif tool_name == "calculate_delta_g_bind":
         fragments = arguments.get("fragment_g_hartrees", arguments.get("fragment_g_hartree", []))
         delta_h, delta_kcal = delta_g_binding(float(arguments["complex_g_hartree"]), [float(value) for value in fragments])
@@ -1585,8 +1880,51 @@ def mcp_run_tool(payload: McpToolRunRequest, db: Session = Depends(get_db)) -> d
     elif tool_name == "calculate_delta_g_poison":
         delta, label, color = delta_g_poison(float(arguments["o_ti_complex_g_hartree"]), float(arguments["pi_complex_g_hartree"]))
         result = {"delta_g_poison_kcal_mol": delta, "label": label, "color": color, "formula": "ΔGpoison = G(O→Ti) − G(C=C π-complex)"}
+    elif tool_name == "calculate_insert_barrier":
+        profile = insertion_profile(
+            float(arguments["free_site_monomer_g_hartree"]),
+            float(arguments["pi_complex_g_hartree"]),
+            float(arguments["ts_g_hartree"]),
+            float(arguments["product_g_hartree"]) if arguments.get("product_g_hartree") is not None else None,
+            float(arguments["reference_barrier_kcal_mol"]) if arguments.get("reference_barrier_kcal_mol") is not None else None,
+            float(arguments.get("temperature_k", 350.0)),
+        )
+        result = profile.__dict__ | {"formula": "ΔG‡ = G(TS) − G(free active site + monomer)"}
     elif tool_name == "calculate_bde_sic":
         result = ultra_calculate_bde_sic(float(arguments["g_fragments_hartree"]), float(arguments["g_molecule_hartree"]))
+    elif tool_name == "calculate_bde_sio":
+        values = bond_dissociation_energy(float(arguments["g_fragments_hartree"]), float(arguments["g_molecule_hartree"]))
+        result = values | {"bond_type": "Si-O", "formula": "BDE(Si–O) = G(R•) + G(•O–Si fragment) − G(R–O–Si)"}
+    elif tool_name == "calculate_radical_kinetics":
+        result = radical_kinetics_engine.simulate_rk4(
+            initial={
+                "RO": float(arguments.get("ro_radical", 0.02)),
+                "PP_radical": float(arguments.get("pp_radical", arguments.get("pp_radical_concentration", 0.01))),
+                "monomer": float(arguments.get("monomer", 0.05)),
+                "coagent": float(arguments.get("coagent", 0.01)),
+            },
+            t_end=float(arguments.get("t_end", 1.0)),
+            steps=int(arguments.get("steps", 20)),
+        )
+    elif tool_name == "generate_cubegen_template":
+        template_type = str(arguments.get("template_type", "density"))
+        job_type = "cubegen_density" if template_type == "density" else "cubegen_esp" if template_type == "esp" else "cubegen_homo_lumo"
+        result = build_simulation_job_template(type("Payload", (), {"job_type": job_type, "tool_type": "cubegen", "execution_mode": "template_only"})())
+    elif tool_name == "generate_multiwfn_qtaim_template":
+        result = build_simulation_job_template(type("Payload", (), {"job_type": "multiwfn_qtaim", "tool_type": "multiwfn", "execution_mode": "template_only"})())
+    elif tool_name == "generate_multiwfn_nci_template":
+        result = build_simulation_job_template(type("Payload", (), {"job_type": "multiwfn_nci", "tool_type": "multiwfn", "execution_mode": "template_only"})())
+    elif tool_name == "generate_goodvibes_parse_task":
+        result = build_simulation_job_template(type("Payload", (), {"job_type": "goodvibes_parse", "tool_type": "goodvibes", "execution_mode": "parse_only"})())
+    elif tool_name == "generate_slurm_script_template":
+        result = build_simulation_job_template(type("Payload", (), {"job_type": "slurm_template", "tool_type": "slurm", "execution_mode": "template_only", "molecule_name": str(arguments.get("job_name", "gaussian_job"))})())
+    elif tool_name == "generate_chinese_report":
+        result = {
+            "title": str(arguments.get("title", "中文科研报告草稿")),
+            "content": "当前仅生成报告草稿；未执行外部科学计算程序。所有示例数据不能作为真实结论。",
+            "evidence_grade": "D",
+            "provenance": "MCP 安全工具生成的报告草稿。",
+        }
     elif tool_name == "validate_upload":
         file_name = str(arguments.get("file_name", ""))
         reason = _upload_name_error(file_name)
