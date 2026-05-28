@@ -2,6 +2,8 @@
 
 英文副名：SiO Catalyst Quantum Studio Pro
 
+GitHub 仓库别名：SPQP / sio-sic-polyolefin-quantum-platform
+
 本平台不是普通分子查看器，而是一个面向 Si–O / Si–C 键、Ziegler–Natta 配位插入、TEA 助催化剂、过氧化物自由基、PP 长链支化-交联-降解竞争机制的中文量子化学科研操作系统。
 
 这是一个面向中文科研用户的全栈量子化学工作流应用，用于研究 Ziegler–Natta 催化剂中功能 α-烯烃、Si–O / Si–Cl 电子结构、TEA 助催化剂相互作用、Ti 活性中心毒化、插入反应自由能面以及水解缩合后反应。
